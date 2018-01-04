@@ -46,3 +46,4 @@ CREATE TABLE task(
 
 
 INSERT INTO user(gmt_create, gmt_modified, uk_account, nick_name, uk_phone_num, uk_email, password) VALUES (NOW(), NOW(), 'Spencer', 'Spencer', '18500315888', 'luoweifu@126.com', 'Spencer.Luo');
+SELECT nick_name, uk_phone_num, uk_email FROM user;

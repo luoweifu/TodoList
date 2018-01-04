@@ -1,15 +1,6 @@
 <?php
 
-$Yaf_Registry = array
-(
-    "mysql" >= array
-    (
-        "charset" >= "utf-8",
-        "connectionString" >= "mysql:dbname=todolist;host=localhost", //127.0.0.1
-        "username" >= "spencer",
-        "password" >= "Spencer.Luo"
-    )
-);
+
 
 /**
  * auther soulence
@@ -18,41 +9,56 @@ $Yaf_Registry = array
  */
 class DBConnect
 {
+    private $dbms = null;
+    private $host = null;
     private $dbname = null;
+    private $user = null;
+    private $password = null;
     private $pdo = null;
     private $persistent = false;
     private $statement = null;
     private $lastInsID = null;
     private static $_instance = [];
 
-    private function __construct($dbname, $attr)
+    private function __construct($dbms, $host, $dbname,$user,  $password, $attr)
     {
+        $this->dbms = $dbms;
+        $this->host = $host;
         $this->dbname = $dbname;
+        $this->user = $user;
+        $this->password = $password;
         $this->persistent = $attr;
     }
 
-    public static function db($flag = 'r', $persistent = false)
+    public function  showInfo()
     {
-        if (!isset($flag)) {
-            $flag = 'r';
+        echo "dbms: " . $this->dbms . PHP_EOL;
+        echo "host: " . $this->host . PHP_EOL;
+        echo "dbName: " . $this->dbname . PHP_EOL;
+        echo "user: " . $this->user . PHP_EOL;
+        echo "password: " . $this->password . PHP_EOL;
+        echo "persistent: " . $this->persistent . PHP_EOL;
+    }
+
+    public static function db($dbms, $host, $dbName, $userName, $password, $persistent = false)
+    {
+        if (!isset($dbms)) {
+            throw new Exception('dbms is empty');
         }
 
         if (!class_exists('PDO')) {
             throw new Exception('not found PDO');
             return false;
         }
-        $mysql_server = Yaf_Registry::get('mysql');
-        if (!isset($mysql_server[$flag])) {
-            return false;
-        }
 
-        $options_arr = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES ' . $mysql_server[$flag]['charset'], PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC);
+        $options_arr = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES ' . 'utf8', PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC);
         if ($persistent === true) {
             $options_arr[PDO::ATTR_PERSISTENT] = true;
         }
 
         try {
-            $pdo = new PDO($mysql_server[$flag]['connectionString'], $mysql_server[$flag]['username'], $mysql_server[$flag]['password'], $options_arr);
+            $dsn="$dbms:host=$host;dbname=$dbName";
+            $pdo = new PDO($dsn, $userName, $password, $options_arr);
         } catch (PDOException $e) {
             throw new Exception($e->getMessage());
             //exit('连接失败:'.$e->getMessage());
@@ -64,6 +70,7 @@ class DBConnect
             return false;
         }
 
+        echo "connect to " . $dsn . "success.";
         return $pdo;
     }
 
@@ -73,7 +80,7 @@ class DBConnect
      * @param bool $attr 是否长连接
      * return false说明给定的数据库不存在
      */
-    public static function getinstance($dbname = 'r', $attr = false)
+    public static function getinstance($dbms, $host, $dbname, $user, $password, $attr = false)
     {
 //        todo Spencer  can be deleted
 //        $mysql_server = Yaf_Registry::get('mysql');
@@ -82,13 +89,13 @@ class DBConnect
 //        }
         $key = md5(md5($dbname . $attr, true));
         if (!isset(self::$_instance[$key]) || !is_object(self::$_instance[$key]))
-            self::$_instance[$key] = new self($dbname, $attr);
+            self::$_instance[$key] = new self($dbms, $host, $dbname, $user, $password, $attr);
         return self::$_instance[$key];
     }
 
-    private function getConnect()
+    public function getConnect()
     {
-        $this->pdo = self::db($this->dbname, $this->persistent);
+        $this->pdo = self::db($this->dbms, $this->host, $this->dbname, $this->user, $this->password, $this->persistent);
     }
 
     /**
@@ -112,7 +119,8 @@ class DBConnect
      */
     private function queryCommon($data, $sql, $one)
     {
-        $this->pdoExec($data, $sql);
+        $count = $this->pdoExec($data, $sql);
+        echo $count . " affects." . PHP_EOL;
 
         if ($one) {
             return $this->statement->fetch(PDO::FETCH_ASSOC);
@@ -148,31 +156,31 @@ class DBConnect
         return $res;
     }
 
-    /**
-     * 分页封装
-     *
-     * @param string $sql
-     * @param int $page 表示从第几页开始取
-     * @param int $pageSize 表示每页多少条
-     * @param array $data 查询的条件
-     */
-    public function limitQuery($sql, $page = 0, $pageSize = 20, $data = [])
-    {
-        $page = intval($page);
-        if ($page < 0) {
-            return [];
-        }
-        $pageSize = intval($pageSize);
-        if ($pageSize > 0) { // pageSize 为0时表示取所有数据
-            $sql .= ' LIMIT ' . $pageSize;
-            if ($page > 0) {
-                $start_limit = ($page - 1) * $pageSize;
-                $sql .= ' OFFSET ' . $start_limit;
-            }
-        }
-        return $this->query($sql, $data);
-    }
-
+//    /**
+//     * 分页封装
+//     *
+//     * @param string $sql
+//     * @param int $page 表示从第几页开始取
+//     * @param int $pageSize 表示每页多少条
+//     * @param array $data 查询的条件
+//     */
+//    public function limitQuery($sql, $page = 0, $pageSize = 20, $data = [])
+//    {
+//        $page = intval($page);
+//        if ($page < 0) {
+//            return [];
+//        }
+//        $pageSize = intval($pageSize);
+//        if ($pageSize > 0) { // pageSize 为0时表示取所有数据
+//            $sql .= ' LIMIT ' . $pageSize;
+//            if ($page > 0) {
+//                $start_limit = ($page - 1) * $pageSize;
+//                $sql .= ' OFFSET ' . $start_limit;
+//            }
+//        }
+//        return $this->query($sql, $data);
+//    }
+//
     /**
      * 这个是用来进行添加 删除  修改操作  使用事务操作
      * @param string $sql 执行查询的sql语句
@@ -201,251 +209,251 @@ class DBConnect
         }
     }
 
-    /**
-     * 这个是用来进行添加 删除  修改操作  使用事务操作
-     * 它是执行多条的
-     * @param array $arr_sql 需要执行操作的SQL语句数组
-     * @param array $arr_data 与数组对应SQL语句的条件
-     * @param bool $Transaction 是否事务操作  默认为否
-     */
-    public function executeDDLes($arr_sql, $arr_data = [], $Transaction = false)
-    {
-
-        if (!is_array($arr_sql) || empty($arr_sql) || !is_array($arr_data))
-            return false;
-
-        $res = [];
-
-        $this->free();
-
-        if ($Transaction)
-            $this->pdo->beginTransaction();//开启事务
-        try {
-            $i = 0;
-            foreach ($arr_sql as $val) {
-                if (!isset($arr_data[$i]))
-                    $arr_data[$i] = [];
-                elseif (!is_array($arr_data[$i])) {
-                    if ($Transaction)
-                        $this->pdo->rollBack();//事务回滚
-                    throw new Exception('Error where DDLExecutees sql:' . $val . ' where:' . $arr_data[$i]);
-                }
-
-                $this->execRes($arr_data[$i], $val);
-                $res[] = $this->lastInsID;
-                $i++;
-            }
-
-            if ($Transaction)
-                $this->pdo->commit();//事务提交
-
-            return $res;
-        } catch (Exception $e) {
-            if ($Transaction)
-                $this->pdo->rollBack();//事务回滚
-            throw new Exception('Error DDLExecutees array_sql:' . json_encode($arr_sql) . ' <=====>' . $e->getMessage());
-            return false;
-        }
-        return $res;
-    }
-
-    /**
-     * 此方法是用来计算查询返回的条数   注意 它只支持SELECT COUNT(*) FROM TABLE...或者SELECT COUNT(0) FROM TABLE...方式
-     * @param string $sql 查询的sql语句
-     * @param array $data SQL语句的条件
-     */
-    public function countRows($sql, $data = [])
-    {
-        if (!is_array($data) || empty($sql) || !is_string($sql))
-            return false;
-        $this->free();
-
-        $res = $this->pdoExec($data, $sql);
-
-        if ($res == false)
-            return false;
-
-        return $this->statement->fetchColumn();
-    }
-
-    /**
-     * 此方法是用来计算查询返回的条数   它是执行多条SQL
-     * @param string $sql 查询的sql语句
-     * @param array $data SQL语句的条件
-     */
-    public function countRowses($arr_sql, $arr_data = [])
-    {
-
-        if (!is_array($arr_sql) || empty($arr_sql) || !is_array($arr_data))
-            return false;
-
-        $res = [];
-
-        $this->free();
-        $i = 0;
-        foreach ($arr_sql as $val) {
-            if (!isset($arr_data[$i]))
-                $arr_data[$i] = [];
-            elseif (!is_array($arr_data[$i]))
-                throw new Exception('Error where CountRowses sql:' . $val . ' where:' . $arr_data[$i]);
-
-            $res1 = $this->pdoExec($arr_data[$i], $val);
-
-            if ($res1 == false)
-                $res[] = false;
-            else
-                $res[] = $this->statement->fetchColumn();
-        }
-
-        return $res;
-    }
-
-    /**
-     * 这里再提供一个方法   由于项目中会有很多需要提供开启事务  然后再进行操作  最后提交
-     * @param bool $Transaction 是否事务操作  默认为否
-     */
-    public function getDB($Transaction = false)
-    {
-        $this->Transaction = $Transaction;
-        $this->getConnect();
-        if ($Transaction === true)
-            $this->pdo->beginTransaction();//开启事务
-        return $this;
-    }
-
-    /**
-     * 此方法可以执行多次  它是执行DDL语句的
-     * 注意  它是需要配合getDB和sQCommit一起使用  不能单独使用哦
-     * 如果没有开启事务  sQCommit方法可以不调用
-     * @param string $sql 查询的sql语句
-     * @param array $data SQL语句的条件
-     */
-    public function execSq($sql, $data = [])
-    {
-        if ($this->checkParams($sql, $data) === false)
-            return false;
-
-        try {
-            $this->execRes($data, $sql);
-            return $this->lastInsID;
-        } catch (Exception $e) {
-            if (isset($this->Transaction) && $this->Transaction === true)
-                $this->pdo->rollBack();//事务回滚
-            throw new Exception('Error execSq<=====>' . $e->getMessage());
-            return false;
-        } finally {
-            if (!empty($this->statement)) {
-                $this->statement->closeCursor();
-                unset($this->statement);
-            }
-        }
-    }
-
-    /**
-     * 执行查询的方法  它需要传一个连接数据库对象
-     * @param string $sql 执行查询的sql语句
-     * @param array $data 查询的条件  格式为[':id'=>$id,':name'=>$name](推荐)或者为[1=>$id,2=>$name]
-     * @param bool $one 是否返回一条内容  默认为否
-     */
-    public function querySq($sql, $data = [], $one = false)
-    {
-        if ($this->checkParams($sql, $data) === false)
-            return false;
-
-        return $this->pdoExecSq($sql, $data, [1, $one]);
-    }
-
-    /**
-     * 分页封装
-     *
-     * @param string $sql
-     * @param int $page 表示从第几页开始取
-     * @param int $pageSize 表示每页多少条
-     * @param array $data 查询的条件
-     */
-    public function limitQuerySq($sql, $page = 0, $pageSize = 20, $data = [])
-    {
-        $page = intval($page);
-        if ($page < 0) {
-            return [];
-        }
-        $pageSize = intval($pageSize);
-        if ($pageSize > 0) { // pageSize 为0时表示取所有数据
-            $sql .= ' LIMIT ' . $pageSize;
-            if ($page > 0) {
-                $start_limit = ($page - 1) * $pageSize;
-                $sql .= ' OFFSET ' . $start_limit;
-            }
-        }
-        return $this->querySq($sql, $data);
-    }
-
-    /**
-     * 此方法是用来计算查询返回的条数   注意 它只支持SELECT COUNT(*) FROM TABLE...或者SELECT COUNT(0) FROM TABLE...方式
-     * @param string $sql 查询的sql语句
-     * @param array $data SQL语句的条件
-     */
-    public function countRowsSq($sql, $data = [])
-    {
-        if ($this->checkParams($sql, $data) === false)
-            return false;
-        return $this->pdoExecSq($sql, $data, [2]);
-    }
-
-    /**
-     * 这里再提供一个方法 这是最后提交操作 如果没有开启事务  此方法最后可以不调用的
-     */
-    public function sQCommit()
-    {
-        if (empty($this->pdo) || !is_object($this->pdo))
-            return false;
-        if (isset($this->Transaction) && $this->Transaction === true)
-            $this->pdo->commit();//提交事务
-        unset($this->pdo);
-    }
-
-    /**
-     * 内部调用方法
-     */
-    public function checkParams($sql, $data)
-    {
-        if (empty($this->pdo) || !is_object($this->pdo) || !is_array($data) || empty($sql) || !is_string($sql))
-            return false;
-
-        return true;
-    }
-
-    /**
-     * 内部调用方法
-     */
-    private function pdoExecSq($sql, $data, $select = [])
-    {
-        try {
-            $res = $this->pdoExec($data, $sql);
-            if (empty($select))
-                return $res;
-            else {
-                if ($select[0] === 1) {
-                    if ($select[1] === true)
-                        return $this->statement->fetch(PDO::FETCH_ASSOC);
-                    else
-                        return $this->statement->fetchAll(PDO::FETCH_ASSOC);
-                } elseif ($select[0] === 2)
-                    return $this->statement->fetchColumn();
-                else
-                    return false;
-            }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-            return false;
-        } finally {
-            if (!empty($this->statement)) {
-                $this->statement->closeCursor();
-                unset($this->statement);
-            }
-        }
-    }
-
+//    /**
+//     * 这个是用来进行添加 删除  修改操作  使用事务操作
+//     * 它是执行多条的
+//     * @param array $arr_sql 需要执行操作的SQL语句数组
+//     * @param array $arr_data 与数组对应SQL语句的条件
+//     * @param bool $Transaction 是否事务操作  默认为否
+//     */
+//    public function executeDDLes($arr_sql, $arr_data = [], $Transaction = false)
+//    {
+//
+//        if (!is_array($arr_sql) || empty($arr_sql) || !is_array($arr_data))
+//            return false;
+//
+//        $res = [];
+//
+//        $this->free();
+//
+//        if ($Transaction)
+//            $this->pdo->beginTransaction();//开启事务
+//        try {
+//            $i = 0;
+//            foreach ($arr_sql as $val) {
+//                if (!isset($arr_data[$i]))
+//                    $arr_data[$i] = [];
+//                elseif (!is_array($arr_data[$i])) {
+//                    if ($Transaction)
+//                        $this->pdo->rollBack();//事务回滚
+//                    throw new Exception('Error where DDLExecutees sql:' . $val . ' where:' . $arr_data[$i]);
+//                }
+//
+//                $this->execRes($arr_data[$i], $val);
+//                $res[] = $this->lastInsID;
+//                $i++;
+//            }
+//
+//            if ($Transaction)
+//                $this->pdo->commit();//事务提交
+//
+//            return $res;
+//        } catch (Exception $e) {
+//            if ($Transaction)
+//                $this->pdo->rollBack();//事务回滚
+//            throw new Exception('Error DDLExecutees array_sql:' . json_encode($arr_sql) . ' <=====>' . $e->getMessage());
+//            return false;
+//        }
+//        return $res;
+//    }
+//
+//    /**
+//     * 此方法是用来计算查询返回的条数   注意 它只支持SELECT COUNT(*) FROM TABLE...或者SELECT COUNT(0) FROM TABLE...方式
+//     * @param string $sql 查询的sql语句
+//     * @param array $data SQL语句的条件
+//     */
+//    public function countRows($sql, $data = [])
+//    {
+//        if (!is_array($data) || empty($sql) || !is_string($sql))
+//            return false;
+//        $this->free();
+//
+//        $res = $this->pdoExec($data, $sql);
+//
+//        if ($res == false)
+//            return false;
+//
+//        return $this->statement->fetchColumn();
+//    }
+//
+//    /**
+//     * 此方法是用来计算查询返回的条数   它是执行多条SQL
+//     * @param string $sql 查询的sql语句
+//     * @param array $data SQL语句的条件
+//     */
+//    public function countRowses($arr_sql, $arr_data = [])
+//    {
+//
+//        if (!is_array($arr_sql) || empty($arr_sql) || !is_array($arr_data))
+//            return false;
+//
+//        $res = [];
+//
+//        $this->free();
+//        $i = 0;
+//        foreach ($arr_sql as $val) {
+//            if (!isset($arr_data[$i]))
+//                $arr_data[$i] = [];
+//            elseif (!is_array($arr_data[$i]))
+//                throw new Exception('Error where CountRowses sql:' . $val . ' where:' . $arr_data[$i]);
+//
+//            $res1 = $this->pdoExec($arr_data[$i], $val);
+//
+//            if ($res1 == false)
+//                $res[] = false;
+//            else
+//                $res[] = $this->statement->fetchColumn();
+//        }
+//
+//        return $res;
+//    }
+//
+//    /**
+//     * 这里再提供一个方法   由于项目中会有很多需要提供开启事务  然后再进行操作  最后提交
+//     * @param bool $Transaction 是否事务操作  默认为否
+//     */
+//    public function getDB($Transaction = false)
+//    {
+//        $this->Transaction = $Transaction;
+//        $this->getConnect();
+//        if ($Transaction === true)
+//            $this->pdo->beginTransaction();//开启事务
+//        return $this;
+//    }
+//
+//    /**
+//     * 此方法可以执行多次  它是执行DDL语句的
+//     * 注意  它是需要配合getDB和sQCommit一起使用  不能单独使用哦
+//     * 如果没有开启事务  sQCommit方法可以不调用
+//     * @param string $sql 查询的sql语句
+//     * @param array $data SQL语句的条件
+//     */
+//    public function execSq($sql, $data = [])
+//    {
+//        if ($this->checkParams($sql, $data) === false)
+//            return false;
+//
+//        try {
+//            $this->execRes($data, $sql);
+//            return $this->lastInsID;
+//        } catch (Exception $e) {
+//            if (isset($this->Transaction) && $this->Transaction === true)
+//                $this->pdo->rollBack();//事务回滚
+//            throw new Exception('Error execSq<=====>' . $e->getMessage());
+//            return false;
+//        } finally {
+//            if (!empty($this->statement)) {
+//                $this->statement->closeCursor();
+//                unset($this->statement);
+//            }
+//        }
+//    }
+//
+//    /**
+//     * 执行查询的方法  它需要传一个连接数据库对象
+//     * @param string $sql 执行查询的sql语句
+//     * @param array $data 查询的条件  格式为[':id'=>$id,':name'=>$name](推荐)或者为[1=>$id,2=>$name]
+//     * @param bool $one 是否返回一条内容  默认为否
+//     */
+//    public function querySq($sql, $data = [], $one = false)
+//    {
+//        if ($this->checkParams($sql, $data) === false)
+//            return false;
+//
+//        return $this->pdoExecSq($sql, $data, [1, $one]);
+//    }
+//
+//    /**
+//     * 分页封装
+//     *
+//     * @param string $sql
+//     * @param int $page 表示从第几页开始取
+//     * @param int $pageSize 表示每页多少条
+//     * @param array $data 查询的条件
+//     */
+//    public function limitQuerySq($sql, $page = 0, $pageSize = 20, $data = [])
+//    {
+//        $page = intval($page);
+//        if ($page < 0) {
+//            return [];
+//        }
+//        $pageSize = intval($pageSize);
+//        if ($pageSize > 0) { // pageSize 为0时表示取所有数据
+//            $sql .= ' LIMIT ' . $pageSize;
+//            if ($page > 0) {
+//                $start_limit = ($page - 1) * $pageSize;
+//                $sql .= ' OFFSET ' . $start_limit;
+//            }
+//        }
+//        return $this->querySq($sql, $data);
+//    }
+//
+//    /**
+//     * 此方法是用来计算查询返回的条数   注意 它只支持SELECT COUNT(*) FROM TABLE...或者SELECT COUNT(0) FROM TABLE...方式
+//     * @param string $sql 查询的sql语句
+//     * @param array $data SQL语句的条件
+//     */
+//    public function countRowsSq($sql, $data = [])
+//    {
+//        if ($this->checkParams($sql, $data) === false)
+//            return false;
+//        return $this->pdoExecSq($sql, $data, [2]);
+//    }
+//
+//    /**
+//     * 这里再提供一个方法 这是最后提交操作 如果没有开启事务  此方法最后可以不调用的
+//     */
+//    public function sQCommit()
+//    {
+//        if (empty($this->pdo) || !is_object($this->pdo))
+//            return false;
+//        if (isset($this->Transaction) && $this->Transaction === true)
+//            $this->pdo->commit();//提交事务
+//        unset($this->pdo);
+//    }
+//
+//    /**
+//     * 内部调用方法
+//     */
+//    public function checkParams($sql, $data)
+//    {
+//        if (empty($this->pdo) || !is_object($this->pdo) || !is_array($data) || empty($sql) || !is_string($sql))
+//            return false;
+//
+//        return true;
+//    }
+//
+//    /**
+//     * 内部调用方法
+//     */
+//    private function pdoExecSq($sql, $data, $select = [])
+//    {
+//        try {
+//            $res = $this->pdoExec($data, $sql);
+//            if (empty($select))
+//                return $res;
+//            else {
+//                if ($select[0] === 1) {
+//                    if ($select[1] === true)
+//                        return $this->statement->fetch(PDO::FETCH_ASSOC);
+//                    else
+//                        return $this->statement->fetchAll(PDO::FETCH_ASSOC);
+//                } elseif ($select[0] === 2)
+//                    return $this->statement->fetchColumn();
+//                else
+//                    return false;
+//            }
+//        } catch (Exception $e) {
+//            throw new Exception($e->getMessage());
+//            return false;
+//        } finally {
+//            if (!empty($this->statement)) {
+//                $this->statement->closeCursor();
+//                unset($this->statement);
+//            }
+//        }
+//    }
+//
     /**
      * 内部调用方法
      */
