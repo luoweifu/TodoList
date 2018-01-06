@@ -20,7 +20,7 @@ use user\Person;
 
 
 $dbms='mysql';     //数据库类型
-$host='localhost'; //数据库主机名
+$host='localhost:3307'; //数据库主机名
 $dbName='todolist';    //使用的数据库
 $user='spencer';      //数据库连接用户名
 $pass='Spencer.Luo';          //对应的密码
@@ -44,29 +44,32 @@ foreach ($result as $row)
 //try {
 //    $dbh = new PDO($dsn, $user, $pass); //初始化一个PDO对象
 //    echo "连接成功";
-//    foreach ($dbh->query("SELECT * FROM user") as $row)
-//    {
-//        print_r($row);
-////        echo $row;
-//    }
-//
-//    try {
-//        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-//
-//        $dbh->beginTransaction();
-//        $dbh->exec("INSERT INTO user(gmt_create, gmt_modified, uk_account, nick_name, uk_phone_num, uk_email, password) VALUES (NOW(), NOW(), 'Tony', 'Tony', '18500315888', 'luoweifu@126.com', 'Spencer.Luo');");
-////        $dbh->exec("insert into salarychange (id, amount, changedate)
-////      values (23, 50000, NOW())");
-//        $dbh->commit();
-//
-//    } catch (Exception $e) {
-//        $dbh->rollBack();
-//        echo "Failed: " . $e->getMessage();
-//    }
-//
 //    $dbh = null;
 //} catch (PDOException $e) {
 //    die ("Error!: " . $e->getMessage());
+//}
+
+
+//
+//
+//foreach ($dbh->query("SELECT * FROM user") as $row)
+//{
+//    print_r($row);
+////        echo $row;
+//}
+//
+//try {
+//    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//
+//    $dbh->beginTransaction();
+//    $dbh->exec("INSERT INTO user(gmt_create, gmt_modified, uk_account, nick_name, uk_phone_num, uk_email, password) VALUES (NOW(), NOW(), 'Tony', 'Tony', '18500315888', 'luoweifu@126.com', 'Spencer.Luo');");
+////        $dbh->exec("insert into salarychange (id, amount, changedate)
+////      values (23, 50000, NOW())");
+//    $dbh->commit();
+//
+//} catch (Exception $e) {
+//    $dbh->rollBack();
+//    echo "Failed: " . $e->getMessage();
 //}
 
 //phpinfo();

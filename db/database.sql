@@ -1,3 +1,8 @@
+# create database
+CREATE DATABASE todolist;
+
+# use specific database
+USE todolist;
 
 # create User
 CREATE TABLE user(
