@@ -1,6 +1,11 @@
 <?php
 
-
+//$dbms='mysql';     //数据库类型
+//$host='localhost:3307'; //数据库主机名
+//$dbName='todolist';    //使用的数据库
+//$user='spencer';      //数据库连接用户名
+//$password='Spencer.Luo';          //对应的密码
+//$dsn="$dbms:host=$host;dbname=$dbName";
 
 /**
  * auther soulence
@@ -70,7 +75,8 @@ class DBConnect
             return false;
         }
 
-        echo "connect to " . $dsn . "success.";
+//        todo Spencer
+//        echo "connect to " . $dsn . "success.";
         return $pdo;
     }
 
@@ -80,13 +86,19 @@ class DBConnect
      * @param bool $attr 是否长连接
      * return false说明给定的数据库不存在
      */
-    public static function getinstance($dbms, $host, $dbname, $user, $password, $attr = false)
+    public static function getinstance($dbname = 'todolist', $attr = false)
     {
 //        todo Spencer  can be deleted
 //        $mysql_server = Yaf_Registry::get('mysql');
 //        if (!isset($mysql_server[$dbname])) {
 //            return false;
 //        }
+        $dbms='mysql';     //数据库类型
+        $host='localhost:3307'; //数据库主机名
+//        $dbName='todolist';    //使用的数据库
+        $user='spencer';      //数据库连接用户名
+        $password='Spencer.Luo';          //对应的密码
+//        echo "getInstance: " . $password;
         $key = md5(md5($dbname . $attr, true));
         if (!isset(self::$_instance[$key]) || !is_object(self::$_instance[$key]))
             self::$_instance[$key] = new self($dbms, $host, $dbname, $user, $password, $attr);

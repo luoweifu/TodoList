@@ -1,22 +1,23 @@
 
 <?php
-
+//session_start();
 //include 'Person.php';
 //require __DIR__ . '/Person.php';
-require_once 'Person.php';
-require_once 'db/DBConnect.php';
+//require_once 'Person.php';
+//require_once 'db/DBConnect.php';
+//include_once 'signUp.php';
+
 //require Yaf_Registry;
 
 //echo  __DIR__;
 
-use user\Person;
+//use user\Person;
 
 //$person = new Person("Spencer", 25);
 //echo "Name:", $person->getName(), " Age:", $person->getAge();
 //$dbOperator = DBConnect::getInstance('todolist', true)->getDB();
 ////$dbOperator->db();
 //$dbOperator->executeDDL("");
-
 
 
 $dbms='mysql';     //数据库类型
@@ -26,28 +27,31 @@ $user='spencer';      //数据库连接用户名
 $pass='Spencer.Luo';          //对应的密码
 $dsn="$dbms:host=$host;dbname=$dbName";
 
-$conn = DBConnect::getinstance($dbms, $host, $dbName, $user, $pass, true);
-$conn->showInfo();
-$conn->getConnect();
-//$a = arrar(':account'=>'Spencer', ':nickName'=>'Spencer', ':phoneNum'=>'18500315888', ':email'=>'luoweifu@126.com', ':password'=>'Spencer.Luo');
-$id = $conn->executeDDL("INSERT INTO user(gmt_create, gmt_modified, uk_account, nick_name, uk_phone_num, uk_email, password) VALUES (NOW(), NOW(), :account, :nickName, :phoneNum, :email, :password);",
-    [':account'=>'Tony', ':nickName'=>'Tony', ':phoneNum'=>'18500315888', ':email'=>'luoweifu@126.com', ':password'=>'Tony.Luo']);
-$result = $conn->query("SELECT nick_name, uk_phone_num, uk_email FROM user; ", array());
-foreach ($result as $row)
-{
-    print_r($row);
-}
+
+//$conn = DBConnect::getinstance($dbms, $host, $dbName, $user, $pass, true);
+//$conn->showInfo();
+//$conn->getConnect();
+////$a = arrar(':account'=>'Spencer', ':nickName'=>'Spencer', ':phoneNum'=>'18500315888', ':email'=>'luoweifu@126.com', ':password'=>'Spencer.Luo');
+////$id = $conn->executeDDL("INSERT INTO user(gmt_create, gmt_modified, uk_account, nick_name, uk_phone_num, uk_email, password) VALUES (NOW(), NOW(), :account, :nickName, :phoneNum, :email, :password);",
+////    [':account'=>'Tony', ':nickName'=>'Tony', ':phoneNum'=>'18500315888', ':email'=>'luoweifu@126.com', ':password'=>'Tony.Luo']);
+//$result = $conn->query("SELECT nick_name, uk_phone_num, uk_email FROM user; ", array());
+//foreach ($result as $row)
+//{
+////    print_r($row);
+//    echo "name: " . $row['nick_name'] . "  phoneNum: ". $row['uk_phone_num'] . PHP_EOL;
+//}
+
 
 //$conn = DBConnect::getinstance();
 //$conn->
 
-//try {
-//    $dbh = new PDO($dsn, $user, $pass); //初始化一个PDO对象
-//    echo "连接成功";
-//    $dbh = null;
-//} catch (PDOException $e) {
-//    die ("Error!: " . $e->getMessage());
-//}
+try {
+    $dbh = new PDO($dsn, $user, $pass); //初始化一个PDO对象
+    echo "连接成功";
+    $dbh = null;
+} catch (PDOException $e) {
+    die ("Error!: " . $e->getMessage());
+}
 
 
 //
@@ -73,3 +77,13 @@ foreach ($result as $row)
 //}
 
 //phpinfo();
+?>
+
+<html>
+<head>
+    <title>Welcom to TodoList</title>
+</head>
+<body>
+<p>This is content test.</p>
+</body>
+</html>

@@ -9,7 +9,6 @@ CREATE TABLE user(
   pk_id BIGINT PRIMARY KEY NOT NULL  AUTO_INCREMENT,
   gmt_create DATETIME NOT NULL,
   gmt_modified DATETIME NOT NULL,
-  uk_account VARCHAR(20) NOT NULL,
   nick_name VARCHAR(20),
   uk_phone_num CHAR(11),
   uk_email VARCHAR(50),

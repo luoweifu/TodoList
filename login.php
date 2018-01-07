@@ -4,11 +4,11 @@ if (!isset($_POST['submit'])) {
 }
 //$username = htmlspecialchars($_POST['username']);
 $username = $_POST['username'];
-$password = $_POST['password'];
+$pass = $_POST['password'];
 //包含数据库连接文件
 include('conn.php');
 //检测用户名及密码是否正确
-$check_query = mysql_query("select userid from user where username='$username' and password='$password'");
+$check_query = mysql_query("select userid from user where username='$username' and password='$pass'");
 //$check_query = mysql_query("select userid from user where username='wang' and //password='123456'");
 if ($result = mysql_fetch_array($check_query)) {
     //登录成功
