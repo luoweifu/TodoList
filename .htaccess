@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks
+  RewriteEngine On
+
+  RewriteEngine on #rewriteengine为重写引擎开关on为开启off为关闭  
+  #RewriteCond $1 !^(index.php\.php|images|robots\.txt)
+  RewriteRule ([a-zA-Z]{1,})-([0-9]{1,}).html$ index.php?action=$1&id=$2&arg=$0
+  #([a-zA-Z]{1,})-([0-9]{1,}).html$是规则，sharexie/test.php?action=$1&id=$2是要替换的格式，$1代表第一个括号匹配的值，$2代表第二个。
+  #RewriteRule ^([a-zA-Z0-9]){6,20}/?$ index.php?c=myuser&m=itime&domain=$0 [L]  
+</IfModule>
