@@ -2,9 +2,13 @@
   Options +FollowSymlinks
   RewriteEngine On
 
-  RewriteEngine on #rewriteengine为重写引擎开关on为开启off为关闭  
-  #RewriteCond $1 !^(index.php\.php|images|robots\.txt)
-  RewriteRule ([a-zA-Z]{1,})-([0-9]{1,}).html$ index.php?action=$1&id=$2&arg=$0
-  #([a-zA-Z]{1,})-([0-9]{1,}).html$是规则，sharexie/test.php?action=$1&id=$2是要替换的格式，$1代表第一个括号匹配的值，$2代表第二个。
-  #RewriteRule ^([a-zA-Z0-9]){6,20}/?$ index.php?c=myuser&m=itime&domain=$0 [L]  
+  # 访问的路径不是一个目录时RewriteRule才能生效
+  RewriteCond %{REQUEST_FILENAME} !-d
+  # 访问的路径不是一个文件时RewriteRule才能生效
+  RewriteCond %{REQUEST_FILENAME} !-f
+  # 将访问路径重写到index.php/的后面,作为参数传递给index.php文件
+  RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+  
+  RewriteRule ^.git - [F,L]
+  RewriteRule Uploads/(.*).(php|asp|jsp|js|sh)$ – [F]
 </IfModule>
