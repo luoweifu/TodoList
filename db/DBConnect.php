@@ -132,7 +132,7 @@ class DBConnect
     private function queryCommon($data, $sql, $one)
     {
         $count = $this->pdoExec($data, $sql);
-        echo $count . " affects." . PHP_EOL;
+//        echo $count . " affects." . PHP_EOL;
 
         if ($one) {
             return $this->statement->fetch(PDO::FETCH_ASSOC);
