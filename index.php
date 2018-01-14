@@ -28,6 +28,8 @@ if (!isset($uriArr[2]))
     exit('Invalid url path:'. $uri);
 }
 
+//echo "curTime:" . microtime();
+
 switch ($uriArr[2])
 {
     case "user":

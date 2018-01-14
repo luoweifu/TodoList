@@ -14,19 +14,19 @@ class UserControler extends Controler
         $startTime = $this->getMillisecond();
 //        echo "startTime:" . $startTime;
         $email = $_POST['email'];
-        $password = $_POST['password'];
+        $password = md5("Todo_List" . $_POST['password']);
         $uuserName = $_POST['userName'];
 
         $arrResult = array();
         $sql = "INSERT INTO user(gmt_create, gmt_modified,  nick_name, uk_email, password) VALUES (NOW(), NOW(), :nickName, :email, :password);";
         $data = [':nickName'=>$uuserName, ':email'=>$email, ':password'=>$password];
         $dbConn = $this->getDBConnection();
-        if(!$dbConn->executeDDL($sql, $data))
+        if($dbConn->executeDDL($sql, $data))
         {
-            $arrResult["errCode"] = 400;
+            $arrResult["errCode"] = 2000;
             $arrResult["errMsg"] = "signUp success!";
         } else{
-            $arrResult["errCode"] = 500;
+            $arrResult["errCode"] = 5000;
             $arrResult["errMsg"] = "operate database faailure.";
         }
         $arrResult["time"] = $this->getMillisecond() - $startTime;
@@ -35,7 +35,35 @@ class UserControler extends Controler
 
     function signIn()
     {
-        echo "signIn()";
+        $startTime = $this->getMillisecond();
+//        echo "startTime:" . $startTime;
+        $email = $_POST['email'];
+        $password = md5("Todo_List" . $_POST['password']);
+//        $uuserName = $_POST['userName'];
+
+        $arrResult = array();
+        $sql = "SELECT pk_id, nick_name, password FROM user WHERE uk_email = :email;";
+        $data = [':email'=>$_POST['email']];
+        $dbConn = $this->getDBConnection();
+        $result = $dbConn->query($sql, $data, true);
+
+//        echo "email:" . $_POST['email'] . "  Password from database:" . $result['password'] . "  Password from input:" . $password;
+        error_log("email:" . $_POST['email'] . "  Password from database:" . $result['password'] . "  Password from input:" . $password);
+        if(isset($result['password']) && $result['password'] == $password)
+        {
+            $_SESSION['user'] = $result['pk_id'];
+//            header("Location: dashbaord.html");
+            $arrResult["errCode"] = 2000;
+            $arrResult["errMsg"] = "signIn success!";
+        }
+        else {
+            $arrResult["errCode"] = 5000;
+            $arrResult["errMsg"] = "operate database faailure.";
+        }
+        $arrResult["time"] = $this->getMillisecond() - $startTime;
+        $json = json_encode($arrResult, JSON_UNESCAPED_UNICODE);
+        error_log("sign in ended data:" . $json);
+        exit($json);
     }
 
     function getUserList()
