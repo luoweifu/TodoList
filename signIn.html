@@ -26,20 +26,50 @@
                     password: $.md5($("#inputPassword").val())
                 };
 
-                // alert("data:" + data);
-                $.post(host + "backend/user/signIn", data,
-                    function(data, status, xhr) {
-                        if(status == "success") {
-                            var resultObj = JSON.parse(data);
-                            if (resultObj.errCode == 2000)
-                            {
-                                // alert("sign in success!");
-                                location.href = "webpage/dashbaord.html";
-                            }
-                        } else {
-                            alert("sign in failure!");
+                // // alert("data:" + data);
+                // $.post(host + "backend/user/signIn", data,
+                //     function(data, status, xhr) {
+                //         if(status == "success") {
+                //             var resultObj = JSON.parse(data);
+                //             if (resultObj.errCode == 2000)
+                //             {
+                //                 // alert("sign in success!");
+                //                 location.href = "webpage/dashbaord.html";
+                //             }
+                //         } else {
+                //             alert("sign in failure!");
+                //         }
+                //     });
+
+                $.ajax({
+                    url:host + "backend/user/signIn",    //请求的url地址
+                    dataType:"json",   //返回格式为json
+                    async:false,//请求是否异步，默认为异步，这也是ajax重要特性
+                    data:data,    //参数值
+                    type:"POST",   //请求方式
+                    // beforeSend:function(xhr){
+                    //     // 请求前的处理
+                    //     alert("请求前的处理");
+                    // },
+                    success:function(result,status,xhr){
+                        //请求成功时处理
+                        if(status == "success" && result.errCode == 2000)
+                        {
+                            // alert("请求成功时处理:" + result);
+                            location.href = "webpage/dashbaord.html";
                         }
-                    });
+                    },
+                    error:function(xhr,status,error){
+                        //请求出错处理
+                        alert("Sign in failure! Please check your email and password.");
+                        location.reload();
+                    },
+                    // complete:function(xhr,status){
+                    //     //请求完成的处理
+                    //     alert("请求完成的处理");
+                    // }
+                });
+
             });
         });
     </script>
