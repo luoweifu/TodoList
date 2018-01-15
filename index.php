@@ -22,6 +22,7 @@ if ($arrCount == 2 || $uriArr[1] != "backend")
 }
 
 require_once "controler/UserControler.php";
+require_once "controler/CategoryControler.php";
 
 if (!isset($uriArr[2]))
 {
@@ -41,7 +42,13 @@ switch ($uriArr[2])
         }
         break;
     case "category":
-        echo "你喜欢的颜色是蓝色!";
+        $category = new CategoryControler();
+        if (isset($uriArr[3]) &&  method_exists($category, $uriArr[3])){
+            $category->$uriArr[3]();
+        }else{
+            exit('error in ' .$uriArr[3] );
+        }
+        break;
         break;
     case "tag":
         echo "你喜欢的颜色是绿色!";

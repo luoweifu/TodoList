@@ -76,10 +76,10 @@ class UserControler extends Controler
         $result = $dbConn->query($sql, $data, false);
         if(!isset($result))
         {
-            $arrResult["errCode"] = 400;
+            $arrResult["errCode"] = 4000;
             $arrResult["errMsg"] = "getUserList failure.";
         } else{
-            $arrResult["errCode"] = 200;
+            $arrResult["errCode"] = 2000;
             $arrResult["errMsg"] = "getUserList success!";
             $arr = array();
             $arrResult["data"] = array();
