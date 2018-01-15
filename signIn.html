@@ -20,7 +20,7 @@
     <script>
         var host = "http://todolist/";
         $(document).ready(function(){
-            $("button").click(function(){
+            $("#sigin_submit").click(function(){
                 var data = {
                     email: $("#inputEmail").val(),
                     password: $.md5($("#inputPassword").val())
@@ -62,7 +62,7 @@
                     error:function(xhr,status,error){
                         //请求出错处理
                         alert("Sign in failure! Please check your email and password.");
-                        location.reload();
+                        // location.reload();
                     },
                     // complete:function(xhr,status){
                     //     //请求完成的处理
@@ -80,7 +80,7 @@
 
 <div class="container">
 
-    <form class="form-signin">
+    <div class="form-signin">
         <h2 class="form-signin-heading">Please sign in</h2>
         <label for="inputEmail" class="sr-only">Email address</label>
         <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
@@ -91,9 +91,9 @@
                 <input type="checkbox" value="remember-me"> Remember me
             </label>
         </div>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <button class="btn btn-lg btn-primary btn-block" id="sigin_submit" type="button">Sign in</button>
         <a href="signUp.html" class="btn btn-link">sign up</a>
-    </form>
+    </div>
 
 </div> <!-- /container -->
 
