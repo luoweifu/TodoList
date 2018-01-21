@@ -75,7 +75,7 @@ class UserControler extends Controler
 //        $uuserName = $_POST['userName'];
 
         $arrResult = array();
-        $sql = "SELECT pk_id, nick_name, password FROM user WHERE uk_email = :email;";
+        $sql = "SELECT pk_id, nick_name,uk_email, password FROM user WHERE uk_email = :email;";
         $data = [':email'=>$_POST['email']];
         $dbConn = $this->getDBConnection();
         $result = $dbConn->query($sql, $data, true);
@@ -88,6 +88,10 @@ class UserControler extends Controler
 //            header("Location: dashbaord.html");
             $arrResult["errCode"] = 2000;
             $arrResult["errMsg"] = "signIn success!";
+            $arrResult["data"] = array();
+            $arrResult["data"]["userId"] = $result['pk_id'];
+            $arrResult["data"]["email"] = $result['uk_email'];
+            $arrResult["data"]["userName"] = $result['nick_name'];
         }
         else {
             $arrResult["errCode"] = 5000;
