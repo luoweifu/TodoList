@@ -56,7 +56,9 @@
                         if(status == "success" && result.errCode == 2000)
                         {
                             // alert("请求成功时处理:" + result);
-                            location.href = "webpage/dashbaord.html";
+                            var userId = result.data.userId;
+                            var usrName = result.data.userName;
+                            location.href = "webpage/dashbaord.html?userId=" + userId + "&userName=" + usrName;
                         }
                     },
                     error:function(xhr,status,error){

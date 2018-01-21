@@ -14,9 +14,27 @@
 
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
+    <script src="webpage/libs/jquery/jquery-3.2.1.min.js"></script>
+    <script src="webpage/libs/jquery/jquery.md5.js"></script>
+    <script>
+        // // location.href = "webpage/dashbaord.html?userId=" + userId + "&userName" + usrName;
+      function loadedCoc() {
+          var url = window.location.href;
+          var args = url.split("?")[1];
+          var arr = args.split("&");
+          // var firstArg = arr[0];
+          var secondArg = arr[1];
+          var usernameKey = secondArg.split("=")[0];
+          var usernameValue = secondArg.split("=")[1];
+          if(usernameKey && usernameKey == "userName")
+          {
+              $("#user").text(usernameValue);
+          }
+      }
+    </script>
   </head>
 
-  <body>
+  <body onload="loadedCoc()">
     <header>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="#">Dashboard</a>
@@ -35,19 +53,18 @@
             <li class="nav-item">
               <a class="nav-link" href="#">Tags</a>
             </li>
-            <!--<li class="nav-item dropdown">-->
-              <!--<a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>-->
-              <!--<div class="dropdown-menu" aria-labelledby="dropdown02">-->
-                <!--<a class="dropdown-item" href="#">Action</a>-->
-                <!--<a class="dropdown-item" href="#">Another action</a>-->
-                <!--<a class="dropdown-item" href="#">Something else here</a>-->
-              <!--</div>-->
-            <!--</li>-->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="user" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+              <div class="dropdown-menu" aria-labelledby="dropdown02">
+                <a class="dropdown-item" href="#">Profile</a>
+                <a class="dropdown-item" href="#">logout</a>
+              </div>
+            </li>
           </ul>
-          <form class="form-inline mt-2 mt-md-0">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-          </form>
+          <!--<form class="form-inline mt-2 mt-md-0">-->
+            <!--<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">-->
+            <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+          <!--</form>-->
         </div>
       </nav>
     </header>
