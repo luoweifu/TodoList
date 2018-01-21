@@ -15,19 +15,52 @@ class UserControler extends Controler
 //        echo "startTime:" . $startTime;
         $email = $_POST['email'];
         $password = md5("Todo_List" . $_POST['password']);
-        $uuserName = $_POST['userName'];
+        $userName = $_POST['userName'];
+        if(!isset($userName) || empty($userName))
+        {
+            $userName = stristr($email,"@",true);
+        }
 
         $arrResult = array();
         $sql = "INSERT INTO user(gmt_create, gmt_modified,  nick_name, uk_email, password) VALUES (NOW(), NOW(), :nickName, :email, :password);";
-        $data = [':nickName'=>$uuserName, ':email'=>$email, ':password'=>$password];
+        $data = [':nickName'=>$userName, ':email'=>$email, ':password'=>$password];
         $dbConn = $this->getDBConnection();
         if($dbConn->executeDDL($sql, $data))
         {
-            $arrResult["errCode"] = 2000;
-            $arrResult["errMsg"] = "signUp success!";
+            $selectUserId = "SELECT pk_id FROM user WHERE uk_email = :email;";
+            $selectUserIdData = [ ':email'=>$email];
+            $uInfo = $dbConn->query($selectUserId, $selectUserIdData, true);
+            $uid = $uInfo["pk_id"];
+            if(isset($uid))
+            {
+                $categorys = array(
+                    "Today\'s task",
+                    "To do event",
+                    "Short-term goal",
+                    "Medium-term Goal",
+                    "Long-term goals",
+                );
+                $insertCategory = "INSERT INTO category(gmt_create, gmt_modified, pk_user_id, name, is_default) VALUES (NOW(), NOW(), :uid, :category, 1);";
+                foreach ($categorys as $value)
+                {
+                    $insertCategoryData = [":uid"=>$uid, ":category"=>$value];
+//                    print_r($insertCategoryData);
+                    $dbConn->executeDDL($insertCategory, $insertCategoryData);
+                }
+                $arrResult["errCode"] = 2000;
+                $arrResult["errMsg"] = "signUp success!";
+                $arrResult["data"] = array();
+                $arrResult["data"]["userId"] = $uid;
+                $arrResult["data"]["email"] = $email;
+                $arrResult["data"]["userName"] = $userName;
+            } else
+            {
+                $arrResult["errCode"] = 5000;
+                $arrResult["errMsg"] = "get user id failure.";
+            }
         } else{
             $arrResult["errCode"] = 5000;
-            $arrResult["errMsg"] = "operate database faailure.";
+            $arrResult["errMsg"] = "operate database failure.";
         }
         $arrResult["time"] = $this->getMillisecond() - $startTime;
         exit(json_encode($arrResult, JSON_UNESCAPED_UNICODE));
