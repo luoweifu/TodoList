@@ -18,11 +18,47 @@
     <script src="webpage/libs/jquery/jquery.md5.js"></script>
     <script>
         // // location.href = "webpage/dashbaord.html?userId=" + userId + "&userName" + usrName;
-      function loadedCoc() {
+      var uId;
+      function getCategories(uid) {
+          var host = "http://todolist/";
+          var data = {"userId":uid};
+          $.post(host + "backend/category/getCategoryList", data,
+              function(data, status, xhr) {
+                  if(status == "success") {
+                      var resultObj;
+                      try {
+                          resultObj = JSON.parse(data);
+                      } catch (err) {}
+                      if (resultObj && !resultObj.error)
+                      {
+                          if (resultObj.errCode == 2000)
+                          {
+                              // alert("sign in success!");
+                              // location.href = "signIn.html";
+                              categories = resultObj.data;
+                          } else
+                          {
+                              alert("parse the data that responsed from server is error !");
+                          }
+                      }
+                  } else {
+                      alert("sign in failure!");
+                  }
+              }
+          );
+      }
+
+      function loadedDoc() {
           var url = window.location.href;
           var args = url.split("?")[1];
           var arr = args.split("&");
-          // var firstArg = arr[0];
+          var firstArg = arr[0];
+          var uidKey = firstArg.split("=")[0];
+          var uidValue = firstArg.split("=")[1];
+          if(uidKey && uidKey == "userId")
+          {
+              uId = uidValue;
+          }
           var secondArg = arr[1];
           var usernameKey = secondArg.split("=")[0];
           var usernameValue = secondArg.split("=")[1];
@@ -34,7 +70,7 @@
     </script>
   </head>
 
-  <body onload="loadedCoc()">
+  <body onload="loadedDoc()">
     <header>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="#">Dashboard</a>
@@ -55,6 +91,7 @@
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="user" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                <!--<span></span>-->
               <div class="dropdown-menu" aria-labelledby="dropdown02">
                 <a class="dropdown-item" href="#">Profile</a>
                 <a class="dropdown-item" href="#">logout</a>
